@@ -29,8 +29,8 @@ void * labRunner(void * a) {
               break;
             }
 
-            // If seats are remaining in course and TA is not allocated
-            if((courses[j]->course_max_slots - courses[j]->seats_filled) > 0 && courses[j]->ta_allocated == -1){
+            // if TA is not allocated
+            if(courses[j]->ta_allocated == -1){
               courses[j]->ta_allocated = i;
               courses[j]->lab_allocated = l->uid;
 
@@ -62,6 +62,10 @@ void * labRunner(void * a) {
           }
         }
       }
+
+      pthread_mutex_lock(&l->mutex);
+      l->ta_worthy = 0;
+      pthread_mutex_unlock(&l->mutex);
 
       for(int i = 0; i < l->n_tas; i++){
         if(l->curr_times[i] < l->max_times){

@@ -12,8 +12,8 @@ void * courseRunner(void * a) {
 
     while(1) {
     	pthread_mutex_lock(&t->mutex);
-        if(t->ta_allocated >= 0 && t->seats_filled < t->course_max_slots && t->tutorial == 0){
-        	t->d = randRange(1, (t->course_max_slots - t->seats_filled));
+        if(t->ta_allocated >= 0 && t->tutorial == 0){
+        	t->d = randRange(1, t->course_max_slots);
         	t->tutorial = 1;
         	t->tut_seats = t->d;
         	//EVENT 7
@@ -28,9 +28,7 @@ void * courseRunner(void * a) {
 	        	}
 	        }
 
-	        // printf("%s w = %d, d = %d, tut_seats = %d\n", t->name, w, t->d, t->tut_seats);
-
-	        if(w+t->d == t->tut_seats || t->d == 0){
+	        if(w!=0 && (w+t->d == t->tut_seats || t->d == 0)){
 	        	// EVENT 8
 	        	printf("Tutorial has started for %s with %d seats filled out of %d\n", t->name, t->tut_seats - t->d, t->tut_seats);
 	        	// Sleep for 5 seconds for tutorial
@@ -60,8 +58,6 @@ void * courseRunner(void * a) {
 							// EVENT 5
 				    		printf("Student %d has selected %s permanently\n", s->uid, t->name);
 				    		s->curr_pref = -1;
-				    		t->seats_filled++;
-
 						}
 						else{
 							// EVENT 3
@@ -93,11 +89,11 @@ void * courseRunner(void * a) {
 	        } 
         }
 
-        bool courseValid = true;
+        bool courseValid = false;
 
         for(int k = 0; k < t->p; k++){
-          if(iiit_labs[t->course_labs[k]]->ta_worthy==2){
-          	courseValid = false;
+          if(iiit_labs[t->course_labs[k]]->ta_worthy!=2){
+          	courseValid = true;
           }
         }
 
@@ -132,9 +128,9 @@ void * courseRunner(void * a) {
 		    			s->curr_pref = -1;
 		    		}
         		}
-
         		pthread_mutex_unlock(&s->mutex);
         	}
+        	pthread_mutex_unlock(&t->mutex);
         	break;
         }
 
@@ -150,7 +146,6 @@ void initCourse(int i) {
     t->uid = i;
     t->ta_allocated = -1;
     t->d = 0;
-    t->seats_filled = 0;
     t->tutorial = 0;
     t->tut_seats = 0;
     t->lab_allocated = -1;

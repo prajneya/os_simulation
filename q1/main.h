@@ -31,7 +31,6 @@ typedef struct Course {
    	int d;
    	int ta_allocated;
     int lab_allocated;
-    int seats_filled;
     int tutorial;
     int tut_seats;
 
