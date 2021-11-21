@@ -11,6 +11,12 @@ typedef struct Student {
     int pref_two;
     int pref_three;
     int arr_time;
+
+    int finalised;
+    int curr_pref;
+    int curr_alloc;
+
+    pthread_mutex_t mutex;
 } Student;
 
 typedef struct Course {
@@ -24,6 +30,10 @@ typedef struct Course {
 
    	int d;
    	int ta_allocated;
+    int lab_allocated;
+    int seats_filled;
+    int tutorial;
+    int tut_seats;
 
     pthread_mutex_t mutex;
 } Course;
@@ -37,6 +47,7 @@ typedef struct Lab {
 
    	int curr_times[50];
    	int availability[50];
+    int ta_worthy;
 
     pthread_mutex_t mutex;
 } Lab;

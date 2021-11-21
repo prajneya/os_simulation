@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "main.h"
 #include "student.h"
@@ -18,10 +19,6 @@ void init(){
 		initCourse(i);
 	}
 
-	for(int i = 0; i < C; i++){
-		createCourseThreads(i);
-	}
-
 	students = (Student **) malloc(sizeof(Student *) * S);
 	student_t = (pthread_t *) malloc(sizeof(pthread_t) * S);
 
@@ -29,15 +26,19 @@ void init(){
 		initStudent(i);
 	}
 
-	for(int i = 0; i < S; i++){
-		createStudentThreads(i);
-	}
-
 	iiit_labs = (Lab **) malloc(sizeof(Lab *) * L);
 	lab_t = (pthread_t *) malloc(sizeof(pthread_t) * L);
 
 	for(int i = 0; i < L; i++){
 		initLab(i);
+	}
+
+	for(int i = 0; i < S; i++){
+		createStudentThreads(i);
+	}
+
+	for(int i = 0; i < C; i++){
+		createCourseThreads(i);
 	}
 
 	for(int i = 0; i < L; i++){
@@ -52,6 +53,32 @@ int main(){
 	for(int i = 0; i < S; i++)
         pthread_join(student_t[i], 0);
 
+
+    bool simOver = true;
+
+    for(int i = 0; i<S; i++){
+    	if(students[i]->curr_pref != -1){
+    		simOver = false;
+    		break;
+    	}
+    }
+
+    if(simOver){
+    	// printf("SIMULATION ENDING\n");
+    	for(int i = 0; i < S; i++){
+			pthread_cancel(student_t[i]);
+		}
+		for(int i = 0; i < L; i++){
+			pthread_cancel(lab_t[i]);
+		}
+		for(int i = 0; i < C; i++){
+			pthread_cancel(course_t[i]);
+		}
+    }
+
+    // printf("SIMULATION ENDING\n");
+
+    return 0;
 
 }
 
