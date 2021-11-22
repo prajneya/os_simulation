@@ -13,6 +13,29 @@ void init(){
 
 	per_iter = 0;
 
+	zones = (Zone **) malloc(sizeof(Zone *) * 3);
+
+	for(int i = 0; i < 3; i++){
+		Zone * z = (Zone *) malloc(sizeof(Zone));
+
+		z->uid = i;
+
+		if(i==0){
+			z->name = 'H';
+			z->capacity = c_H;
+		}
+		else if(i==1){
+			z->name = 'A';
+			z->capacity = c_A;
+		}
+		else if(i==2){
+			z->name = 'N';
+			z->capacity = c_N;
+		}
+
+		zones[i] = z;
+	}
+
 	groups = (Group **) malloc(sizeof(Group *) * G);
 
 	for(int i = 0; i < G; i++){
@@ -21,7 +44,7 @@ void init(){
 
 	scanf("%d", &C);
 
-	teams = (Team **) malloc(sizeof(Team *) * 3);
+	teams = (Team **) malloc(sizeof(Team *) * 2);
 	for(int i = 0; i < 3; i++){
 		Team * t = (Team *) malloc(sizeof(Team));
 		t->uid = i;
@@ -31,9 +54,6 @@ void init(){
 		}
 		else if(i==1){
 			t->name = 'A';
-		}
-		else if(i==2){
-			t->name = 'N';
 		}
 
 		t->iter = 0;
@@ -52,9 +72,9 @@ void init(){
 		createPersonThreads(i);
 	}
 
-	team_t = (pthread_t *) malloc(sizeof(pthread_t) * 3);
+	team_t = (pthread_t *) malloc(sizeof(pthread_t) * 2);
 
-	for(int i = 0; i < 3; i++){
+	for(int i = 0; i < 2; i++){
 		createTeamThreads(i);
 	}
 }

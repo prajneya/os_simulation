@@ -18,31 +18,31 @@ void * teamRunner(void * a) {
     		t->goals++;
     		// TEAM EVENT 1
     		if(t->goals==1){
-    			printf("t= %d: Team %c have scored their %dst goal\n", t->goal_time[i], t->name, t->goals);
+    			printf("t=%d: Team %c have scored their %dst goal\n", t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals==2){
-    			printf("t= %d: Team %c have scored their %dnd goal\n", t->goal_time[i], t->name, t->goals);
+    			printf("t=%d: Team %c have scored their %dnd goal\n", t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals==3){
-    			printf("t= %d: Team %c have scored their %drd goal\n", t->goal_time[i], t->name, t->goals);
+    			printf("t=%d: Team %c have scored their %drd goal\n", t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals>3){
-    			printf("t= %d: Team %c have scored their %dth goal\n", t->goal_time[i], t->name, t->goals);
+    			printf("t=%d: Team %c have scored their %dth goal\n", t->goal_time[i], t->name, t->goals);
     		}
     	}
     	else{
     		// TEAM EVENT 2
     		if(t->goals+1==1){
-    			printf("t= %d: Team %c missed the chance to score their %dst goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf("t=%d: Team %c missed the chance to score their %dst goal\n", t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1==2){
-    			printf("t= %d: Team %c missed the chance to score their %dnd goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf("t=%d: Team %c missed the chance to score their %dnd goal\n", t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1==3){
-    			printf("t= %d: Team %c missed the chance to score their %drd goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf("t=%d: Team %c missed the chance to score their %drd goal\n", t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1>3){
-    			printf("t= %d: Team %c missed the chance to score their %dth goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf("t=%d: Team %c missed the chance to score their %dth goal\n", t->goal_time[i], t->name, t->goals+1);
     		}
     	}
     }
@@ -68,11 +68,6 @@ void initTeam() {
     	teams[1]->goal_time[teams[1]->iter] = t_time;
     	teams[1]->chance[teams[1]->iter] = t_prob;
     	teams[1]->iter++;
-    }
-    else if(t_name=='N'){
-    	teams[2]->goal_time[teams[2]->iter] = t_time;
-    	teams[2]->chance[teams[2]->iter] = t_prob;
-    	teams[2]->iter++;
     }
 }
 

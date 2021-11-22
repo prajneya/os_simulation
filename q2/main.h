@@ -3,14 +3,24 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+typedef struct Zone{
+    int uid;
+
+    char name;
+    int capacity;
+} Zone;
+
 typedef struct Person {
     int uid;
 
     char name[50];
-    char zone;
+    char fan;
     int arr_time;
     int patience;
     int num_goals;
+
+    int atExit;
+    int groupID;
 
 } Person;
 
@@ -19,6 +29,8 @@ typedef struct Group {
 
     int k;
     Person ** persons;
+
+    int left;
 } Group;
 
 typedef struct Team {
@@ -34,6 +46,7 @@ typedef struct Team {
 
 Group ** groups;
 Team ** teams;
+Zone ** zones;
 
 pthread_t * person_t,
           * team_t;
