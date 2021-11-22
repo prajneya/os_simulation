@@ -21,6 +21,23 @@ void * courseRunner(void * a) {
 	          if(l->availability[i] == 1 && l->curr_times[i] < l->max_times){
 	            // if TA is not allocated
 	            if(t->ta_allocated == -1){
+
+
+	              // BONUS
+	              bool equalOpp = true;
+	              for(int j = 0; j < l->n_tas; j++){
+	              	if(j!=i){
+	              		if(l->curr_times[i]-l->curr_times[j]>0){
+	              			equalOpp = false;
+	              		}
+	              	}
+	              }
+
+	              if(!equalOpp){
+	              	pthread_mutex_lock(&l->mutex);
+	              	break;
+	              }
+
 	              t->ta_allocated = i;
 	              t->lab_allocated = l->uid;
 
