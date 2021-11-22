@@ -65,15 +65,6 @@ int main(){
 
     if(simOver){
     	printf("SIMULATION ENDING\n");
-    	for(int i = 0; i < S; i++){
-			pthread_cancel(student_t[i]);
-		}
-		for(int i = 0; i < L; i++){
-			pthread_cancel(lab_t[i]);
-		}
-		for(int i = 0; i < C; i++){
-			pthread_cancel(course_t[i]);
-		}
     }
 
     // printf("SIMULATION ENDING\n");
