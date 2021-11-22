@@ -10,8 +10,43 @@
 void * courseRunner(void * a) {
     Course * t = (Course *)a;
 
-    while(1) {
+    while(1){
     	pthread_mutex_lock(&t->mutex);
+
+    	for(int k = 0; k < t->p; k++){
+    		Lab * l = iiit_labs[t->course_labs[k]];
+    		pthread_mutex_lock(&l->mutex);
+    		for(int i = 0; i < l->n_tas; i++){
+	          // Check if TAs are available
+	          if(l->availability[i] == 1 && l->curr_times[i] < l->max_times){
+	            // if TA is not allocated
+	            if(t->ta_allocated == -1){
+	              t->ta_allocated = i;
+	              t->lab_allocated = l->uid;
+
+	              //suffix for TASHIP, EVENT 11
+	              if(l->curr_times[i] == 0){
+	                printf("TA %d from lab %s has been allocated to course %s for his %dst TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	              }
+	              else if(l->curr_times[i] == 1){
+	                printf("TA %d from lab %s has been allocated to course %s for his %dnd TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	              }
+	              else if(l->curr_times[i] == 2){
+	                printf("TA %d from lab %s has been allocated to course %s for his %drd TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	              }
+	              else{
+	                printf("TA %d from lab %s has been allocated to course %s for his %dth TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	              }
+	              l->availability[i] = 0;
+	              l->curr_times[i]++;
+	              break;
+	            }
+	          }
+	        }
+    		pthread_mutex_unlock(&l->mutex);
+    	}
+
+
         if(t->ta_allocated >= 0 && t->tutorial == 0){
         	t->d = randRange(1, t->course_max_slots);
         	t->tutorial = 1;
@@ -31,8 +66,8 @@ void * courseRunner(void * a) {
 	        if(w!=0 && (w+t->d == t->tut_seats || t->d == 0)){
 	        	// EVENT 8
 	        	printf("Tutorial has started for %s with %d seats filled out of %d\n", t->name, t->tut_seats - t->d, t->tut_seats);
-	        	// Sleep for 5 seconds for tutorial
-		        sleep(5);
+	        	// Sleep for 2 seconds for tutorial
+		        sleep(2);
 
 		        // end tutorial
 		        t->tutorial = 0;
@@ -89,49 +124,22 @@ void * courseRunner(void * a) {
 	        } 
         }
 
-        bool courseValid = false;
+        if(t->courseValid>0){
+	        t->courseValid = 0;
 
-        for(int k = 0; k < t->p; k++){
-          if(iiit_labs[t->course_labs[k]]->ta_worthy!=2){
-          	courseValid = true;
-          }
-        }
+	        for(int k = 0; k < t->p; k++){
+	          if(iiit_labs[t->course_labs[k]]->ta_worthy!=2){
+	          	t->courseValid = 1;
+	          }
+	        }
+	    }
 
-        if(t->ta_allocated == -1 && !courseValid){
-        	//EVENT 10
-        	printf("Course %s doesn't have any TA's eligible and is removed from course offerings\n", t->name);
-
-        	for(int i = 0; i < S; i++){
-        		Student * s = students[i];
-
-		        pthread_mutex_lock(&s->mutex);
-
-        		if(s->curr_pref==t->uid){
-        			// EVENT 3
-				    printf("Student %d has withdrawn from course %s\n", s->uid, t->name);
-
-        			if(s->curr_pref==s->pref_one){
-		    			s->curr_alloc = -1;
-		    			s->curr_pref = s->pref_two;
-		    			// EVENT 4
-		    			printf("Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n", s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
-		    		}
-		    		else if(s->curr_pref==s->pref_two){
-		    			s->curr_alloc = -1;
-		    			s->curr_pref = s->pref_three;
-		    			// EVENT 4
-		    			printf("Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n", s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
-		    		}
-		    		else{
-		    			// EVENT 6
-		    			printf("Student %d couldn't get any of his preferred courses\n", s->uid);
-		    			s->curr_pref = -1;
-		    		}
-        		}
-        		pthread_mutex_unlock(&s->mutex);
-        	}
-        	pthread_mutex_unlock(&t->mutex);
-        	break;
+        if(t->courseValid <= 0){
+        	if(t->courseValid == 0){
+        		t->courseValid = -1;
+		    	//EVENT 10
+		    	printf("Course %s doesn't have any TA's eligible and is removed from course offerings\n", t->name);
+			}
         }
 
         pthread_mutex_unlock(&t->mutex);
@@ -149,6 +157,7 @@ void initCourse(int i) {
     t->tutorial = 0;
     t->tut_seats = 0;
     t->lab_allocated = -1;
+    t->courseValid = 1;
 
    	scanf("%s %lf %d %d", t->name, &t->interest, &t->course_max_slots, &t->p);
 

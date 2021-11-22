@@ -8,11 +8,11 @@
 
 void wait_for_slot(Student * s) {
     while(s->curr_pref!=-1) {
+    	
         for(int i = 0; i < C; i++) {
             pthread_mutex_lock(&courses[i]->mutex);
 
             if(s->curr_alloc == -1 && courses[i]->d > 0 && courses[i]->ta_allocated >= 0 && courses[i]->uid == s->curr_pref) {
-
                 pthread_mutex_lock(&s->mutex);
                 s->curr_alloc = courses[i]->uid;
                 pthread_mutex_unlock(&s->mutex);
@@ -30,6 +30,31 @@ void wait_for_slot(Student * s) {
 
             pthread_mutex_unlock(&courses[i]->mutex);
         }
+
+        if(s->curr_pref != -1 && courses[s->curr_pref]->courseValid <= 0){
+        	// EVENT 3
+		    printf("Student %d has withdrawn from course %s\n", s->uid, courses[s->curr_pref]->name);
+		    pthread_mutex_lock(&s->mutex);
+			if(s->curr_pref==s->pref_one){
+    			s->curr_alloc = -1;
+    			s->curr_pref = s->pref_two;
+    			// EVENT 4
+    			printf("Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n", s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
+    		}
+    		else if(s->curr_pref==s->pref_two){
+    			s->curr_alloc = -1;
+    			s->curr_pref = s->pref_three;
+    			// EVENT 4
+    			printf("Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n", s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
+    		}
+    		else{
+    			// EVENT 6
+    			printf("Student %d couldn't get any of his preferred courses\n", s->uid);
+    			s->curr_pref = -1;
+    		}
+    		pthread_mutex_unlock(&s->mutex);
+        }
+        
     }
 
     return;

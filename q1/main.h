@@ -33,6 +33,7 @@ typedef struct Course {
     int lab_allocated;
     int tutorial;
     int tut_seats;
+    int courseValid;
 
     pthread_mutex_t mutex;
 } Course;

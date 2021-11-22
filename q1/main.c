@@ -64,7 +64,7 @@ int main(){
     }
 
     if(simOver){
-    	// printf("SIMULATION ENDING\n");
+    	printf("SIMULATION ENDING\n");
     	for(int i = 0; i < S; i++){
 			pthread_cancel(student_t[i]);
 		}
