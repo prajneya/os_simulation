@@ -43,16 +43,16 @@ void * courseRunner(void * a) {
 
 	              //suffix for TASHIP, EVENT 11
 	              if(l->curr_times[i] == 0){
-	                printf("TA %d from lab %s has been allocated to course %s for his %dst TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	                printf(ANSI_COLOR_BYELLOW "TA %d from lab %s has been allocated to course %s for his %dst TA ship\n" ANSI_COLOR_RESET, i, l->name, t->name, l->curr_times[i]+1);
 	              }
 	              else if(l->curr_times[i] == 1){
-	                printf("TA %d from lab %s has been allocated to course %s for his %dnd TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	                printf(ANSI_COLOR_BYELLOW "TA %d from lab %s has been allocated to course %s for his %dnd TA ship\n" ANSI_COLOR_RESET, i, l->name, t->name, l->curr_times[i]+1);
 	              }
 	              else if(l->curr_times[i] == 2){
-	                printf("TA %d from lab %s has been allocated to course %s for his %drd TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	                printf(ANSI_COLOR_BYELLOW "TA %d from lab %s has been allocated to course %s for his %drd TA ship\n" ANSI_COLOR_RESET, i, l->name, t->name, l->curr_times[i]+1);
 	              }
 	              else{
-	                printf("TA %d from lab %s has been allocated to course %s for his %dth TA ship\n", i, l->name, t->name, l->curr_times[i]+1);
+	                printf(ANSI_COLOR_BYELLOW "TA %d from lab %s has been allocated to course %s for his %dth TA ship\n" ANSI_COLOR_RESET, i, l->name, t->name, l->curr_times[i]+1);
 	              }
 	              l->availability[i] = 0;
 	              l->curr_times[i]++;
@@ -69,7 +69,7 @@ void * courseRunner(void * a) {
         	t->tutorial = 1;
         	t->tut_seats = t->d;
         	//EVENT 7
-        	printf("Course %s has been allotted %d seats\n", t->name, t->d);
+        	printf(ANSI_COLOR_WHITE "Course %s has been allotted %d seats\n" ANSI_COLOR_RESET, t->name, t->d);
         }
 
         if(t->tutorial){
@@ -82,7 +82,7 @@ void * courseRunner(void * a) {
 
 	        if(w!=0 && (w+t->d == t->tut_seats || t->d == 0)){
 	        	// EVENT 8
-	        	printf("Tutorial has started for %s with %d seats filled out of %d\n", t->name, t->tut_seats - t->d, t->tut_seats);
+	        	printf(ANSI_COLOR_GREY "Tutorial has started for %s with %d seats filled out of %d\n" ANSI_COLOR_RESET, t->name, t->tut_seats - t->d, t->tut_seats);
 	        	// Sleep for 2 seconds for tutorial
 		        sleep(2);
 
@@ -93,7 +93,7 @@ void * courseRunner(void * a) {
 
 		        // TA exits
 		        // EVENT 9
-	        	printf("TA %d from lab %s has completed the tutorial and left the course %s\n", t->ta_allocated, iiit_labs[t->lab_allocated]->name, t->name);
+	        	printf(ANSI_COLOR_BRED "TA %d from lab %s has completed the tutorial and left the course %s\n" ANSI_COLOR_RESET, t->ta_allocated, iiit_labs[t->lab_allocated]->name, t->name);
 	    		t->ta_allocated = -1;
 		        t->lab_allocated = -1;
 
@@ -108,28 +108,28 @@ void * courseRunner(void * a) {
 
 						if(finalises){
 							// EVENT 5
-				    		printf("Student %d has selected %s permanently\n", s->uid, t->name);
+				    		printf(ANSI_COLOR_MAGENTA "Student %d has selected %s permanently\n" ANSI_COLOR_RESET, s->uid, t->name);
 				    		s->curr_pref = -1;
 						}
 						else{
 							// EVENT 3
-				    		printf("Student %d has withdrawn from course %s\n", s->uid, t->name);
+				    		printf(ANSI_COLOR_YELLOW "Student %d has withdrawn from course %s\n" ANSI_COLOR_RESET, s->uid, t->name);
 
 				    		if(s->curr_pref==s->pref_one){
 				    			s->curr_alloc = -1;
 				    			s->curr_pref = s->pref_two;
 				    			// EVENT 4
-				    			printf("Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n", s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
+				    			printf(ANSI_COLOR_BLUE "Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n" ANSI_COLOR_RESET, s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
 				    		}
 				    		else if(s->curr_pref==s->pref_two){
 				    			s->curr_alloc = -1;
 				    			s->curr_pref = s->pref_three;
 				    			// EVENT 4
-				    			printf("Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n", s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
+				    			printf(ANSI_COLOR_BLUE "Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n" ANSI_COLOR_RESET, s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
 				    		}
 				    		else{
 				    			// EVENT 6
-				    			printf("Student %d couldn't get any of his preferred courses\n", s->uid);
+				    			printf(ANSI_COLOR_CYAN "Student %d couldn't get any of his preferred courses\n" ANSI_COLOR_RESET, s->uid);
 				    			s->curr_pref = -1;
 				    		}
 						}
@@ -155,7 +155,7 @@ void * courseRunner(void * a) {
         	if(t->courseValid == 0){
         		t->courseValid = -1;
 		    	//EVENT 10
-		    	printf("Course %s doesn't have any TA's eligible and is removed from course offerings\n", t->name);
+		    	printf(ANSI_COLOR_BGREEN "Course %s doesn't have any TA's eligible and is removed from course offerings\n" ANSI_COLOR_RESET, t->name);
 			}
         }
 

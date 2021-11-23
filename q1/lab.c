@@ -21,7 +21,7 @@ void * labRunner(void * a) {
       // EVENT 12
       if(!l->ta_worthy){
         l->ta_worthy = 2;
-        printf("Lab %s no longer has students available for TA ship\n", l->name);
+        printf(ANSI_COLOR_BBLUE "Lab %s no longer has students available for TA ship\n" ANSI_COLOR_RESET, l->name);
       }
       pthread_mutex_unlock(&l->mutex);
     }

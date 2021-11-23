@@ -18,9 +18,7 @@ void wait_for_slot(Student * s) {
                 pthread_mutex_unlock(&s->mutex);
 
                 // EVENT 2
-                printf("Student %d has been allocated a seat in "
-                        "course %s\n",
-                        s->uid, courses[i]->name);
+                printf(ANSI_COLOR_GREEN "Student %d has been allocated a seat in course %s\n" ANSI_COLOR_RESET, s->uid, courses[i]->name);
 
                 courses[i]->d--;
 
@@ -33,23 +31,23 @@ void wait_for_slot(Student * s) {
 
         if(s->curr_pref != -1 && courses[s->curr_pref]->courseValid <= 0){
         	// EVENT 3
-		    printf("Student %d has withdrawn from course %s\n", s->uid, courses[s->curr_pref]->name);
+		    printf(ANSI_COLOR_YELLOW "Student %d has withdrawn from course %s\n" ANSI_COLOR_RESET, s->uid, courses[s->curr_pref]->name);
 		    pthread_mutex_lock(&s->mutex);
 			if(s->curr_pref==s->pref_one){
     			s->curr_alloc = -1;
     			s->curr_pref = s->pref_two;
     			// EVENT 4
-    			printf("Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n", s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
+    			printf(ANSI_COLOR_BLUE "Student %d has changed current preference from %s (priority 1) to %s (priority 2)\n" ANSI_COLOR_RESET, s->uid, courses[s->pref_one]->name, courses[s->pref_two]->name);
     		}
     		else if(s->curr_pref==s->pref_two){
     			s->curr_alloc = -1;
     			s->curr_pref = s->pref_three;
     			// EVENT 4
-    			printf("Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n", s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
+    			printf(ANSI_COLOR_BLUE "Student %d has changed current preference from %s (priority 2) to %s (priority 3)\n" ANSI_COLOR_RESET, s->uid, courses[s->pref_two]->name, courses[s->pref_three]->name);
     		}
     		else{
     			// EVENT 6
-    			printf("Student %d couldn't get any of his preferred courses\n", s->uid);
+    			printf(ANSI_COLOR_CYAN "Student %d couldn't get any of his preferred courses\n" ANSI_COLOR_RESET, s->uid);
     			s->curr_pref = -1;
     		}
     		pthread_mutex_unlock(&s->mutex);
@@ -65,7 +63,7 @@ void * studentRunner(void * a) {
 
     sleep(s->arr_time);
     // EVENT 1
-    printf("Student %d has filled in preferences for course registration\n", s->uid);
+    printf(ANSI_COLOR_RED "Student %d has filled in preferences for course registration\n" ANSI_COLOR_RESET, s->uid);
 
 	wait_for_slot(s);
 
