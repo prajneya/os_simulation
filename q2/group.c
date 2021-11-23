@@ -10,7 +10,7 @@ void * personRunner(void * a) {
     Person * p = (Person *)a;
     sleep(p->arr_time);
     // SPEC EVENT 1
-    printf("t=%d: %s has reached the stadium\n", p->arr_time, p->name);
+    printf(ANSI_COLOR_RED "t=%d: %s has reached the stadium\n" ANSI_COLOR_RESET, p->arr_time, p->name);
 
     int wait_time = 0;
     int spectate_time = 0;
@@ -25,21 +25,23 @@ void * personRunner(void * a) {
         sleep(1);
         if(wait_time > p->patience){
             // SPEC EVENT 3
-            printf("t=%d: %s could not get a seat\n", p->arr_time+wait_time, p->name);
+            printf(ANSI_COLOR_YELLOW "t=%d: %s could not get a seat\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             sleep(1);
             p->atExit = 1;
             // SPEC EVENT 6
-            printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+1, p->name);
+            printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+1, p->name);
         }
         else{
             // SPEC EVENT 2
             if(zones[0]->capacity >0){
                 zones[0]->capacity--;
-                printf("t=%d: %s has got a seat in zone H\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 0;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone H\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
             else if(zones[2]->capacity >0){
                 zones[2]->capacity--;
-                printf("t=%d: %s has got a seat in zone N\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 2;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone N\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
 
             while(teams[1]->goals < p->num_goals && spectate_time < X){
@@ -48,19 +50,21 @@ void * personRunner(void * a) {
             }
             // SPEC EVENT 5
             if(teams[1]->goals >= p->num_goals){
-                printf("t=%d: %s is leaving due to bad performance of his team\n", p->arr_time+wait_time+spectate_time, p->name);
+                zones[p->curr_zone]++;
+                printf(ANSI_COLOR_MAGENTA "t=%d: %s is leaving due to bad performance of his team\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time, p->name);
                 sleep(1);
                 p->atExit = 1;
                 // SPEC EVENT 6
-                printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+spectate_time+1, p->name);
+                printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time+1, p->name);
             }
             // SPEC EVENT 4
             else if(spectate_time>=X){
-                printf("t=%d: %s watched the match for %d seconds and is leaving\n", p->arr_time+wait_time+spectate_time, p->name, X);
+                zones[p->curr_zone]++;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s watched the match for %d seconds and is leaving\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time, p->name, X);
                 sleep(1);
                 p->atExit = 1;
                 // SPEC EVENT 6
-                printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+spectate_time+1, p->name);
+                printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time+1, p->name);
             }
 
         }
@@ -75,16 +79,17 @@ void * personRunner(void * a) {
         sleep(1);
         if(wait_time > p->patience){
             // SPEC EVENT 3
-            printf("t=%d: %s could not get a seat\n", p->arr_time+wait_time, p->name);
+            printf(ANSI_COLOR_YELLOW "t=%d: %s could not get a seat\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             sleep(1);
             // SPEC EVENT 6
-            printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+1, p->name);
+            printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+1, p->name);
         }
         else{
             // SPEC EVENT 2
             if(zones[1]->capacity >0){
                 zones[1]->capacity--;
-                printf("t=%d: %s has got a seat in zone A\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 1;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone A\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
 
             while(teams[0]->goals < p->num_goals && spectate_time < X){
@@ -93,19 +98,21 @@ void * personRunner(void * a) {
             }
             // SPEC EVENT 5
             if(teams[0]->goals >= p->num_goals){
-                printf("t=%d: %s is leaving due to bad performance of his team\n", p->arr_time+wait_time+spectate_time, p->name);
+                zones[p->curr_zone]++;
+                printf(ANSI_COLOR_MAGENTA "t=%d: %s is leaving due to bad performance of his team\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time, p->name);
                 sleep(1);
                 p->atExit = 1;
                 // SPEC EVENT 6
-                printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+spectate_time+1, p->name);
+                printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time+1, p->name);
             }
             // SPEC EVENT 4
             else if(spectate_time>=X){
-                printf("t=%d: %s watched the match for %d seconds and is leaving\n", p->arr_time+wait_time+spectate_time, p->name, X);
+                zones[p->curr_zone]++;
+                printf(ANSI_COLOR_CYAN "t=%d: %s watched the match for %d seconds and is leaving\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time, p->name, X);
                 sleep(1);
                 p->atExit = 1;
                 // SPEC EVENT 6
-                printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+spectate_time+1, p->name);
+                printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time+1, p->name);
             }
         }
     }
@@ -119,25 +126,28 @@ void * personRunner(void * a) {
         sleep(1);
         if(wait_time > p->patience){
             // SPEC EVENT 3
-            printf("t=%d: %s could not get a seat\n", p->arr_time+wait_time, p->name);
+            printf(ANSI_COLOR_YELLOW "t=%d: %s could not get a seat\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             sleep(1);
             p->atExit = 1;
             // SPEC EVENT 6
-            printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+1, p->name);
+            printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+1, p->name);
         }
         else{
             // SPEC EVENT 2
             if(zones[0]->capacity >0){
                 zones[0]->capacity--;
-                printf("t=%d: %s has got a seat in zone H\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 0;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone H\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
             else if(zones[1]->capacity >0){
                 zones[1]->capacity--;
-                printf("t=%d: %s has got a seat in zone A\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 1;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone A\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
             else if(zones[2]->capacity >0){
                 zones[2]->capacity--;
-                printf("t=%d: %s has got a seat in zone N\n", p->arr_time+wait_time, p->name);
+                p->curr_zone = 2;
+                printf(ANSI_COLOR_YELLOW "t=%d: %s has got a seat in zone N\n" ANSI_COLOR_RESET, p->arr_time+wait_time, p->name);
             }
 
             while(spectate_time < X){
@@ -146,11 +156,12 @@ void * personRunner(void * a) {
             }
             // SPEC EVENT 4
             if(spectate_time>=X){
-                printf("t=%d: %s watched the match for %d seconds and is leaving\n", p->arr_time+wait_time+spectate_time, p->name, X);
+                zones[p->curr_zone]++;
+                printf(ANSI_COLOR_CYAN "t=%d: %s watched the match for %d seconds and is leaving\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time, p->name, X);
                 sleep(1);
                 p->atExit = 1;
                 // SPEC EVENT 6
-                printf("t=%d: %s is waiting for their friends at the exit\n", p->arr_time+wait_time+spectate_time+1, p->name);
+                printf(ANSI_COLOR_BLUE "t=%d: %s is waiting for their friends at the exit\n" ANSI_COLOR_RESET, p->arr_time+wait_time+spectate_time+1, p->name);
             }
         }
     }
@@ -191,6 +202,7 @@ void initGroup(int i) {
         scanf("%s %c %d %d %d", g->persons[j]->name, &g->persons[j]->fan, &g->persons[j]->arr_time, &g->persons[j]->patience, &g->persons[j]->num_goals);
         g->persons[j]->atExit = 0;
         g->persons[j]->groupID = i;
+        g->persons[j]->curr_zone = -1;
     }
 
     groups[i] = g;

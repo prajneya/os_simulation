@@ -18,31 +18,31 @@ void * teamRunner(void * a) {
     		t->goals++;
     		// TEAM EVENT 1
     		if(t->goals==1){
-    			printf("t=%d: Team %c have scored their %dst goal\n", t->goal_time[i], t->name, t->goals);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c have scored their %dst goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals==2){
-    			printf("t=%d: Team %c have scored their %dnd goal\n", t->goal_time[i], t->name, t->goals);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c have scored their %dnd goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals==3){
-    			printf("t=%d: Team %c have scored their %drd goal\n", t->goal_time[i], t->name, t->goals);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c have scored their %drd goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals);
     		}
     		else if(t->goals>3){
-    			printf("t=%d: Team %c have scored their %dth goal\n", t->goal_time[i], t->name, t->goals);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c have scored their %dth goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals);
     		}
     	}
     	else{
     		// TEAM EVENT 2
     		if(t->goals+1==1){
-    			printf("t=%d: Team %c missed the chance to score their %dst goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c missed the chance to score their %dst goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1==2){
-    			printf("t=%d: Team %c missed the chance to score their %dnd goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c missed the chance to score their %dnd goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1==3){
-    			printf("t=%d: Team %c missed the chance to score their %drd goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c missed the chance to score their %drd goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals+1);
     		}
     		else if(t->goals+1>3){
-    			printf("t=%d: Team %c missed the chance to score their %dth goal\n", t->goal_time[i], t->name, t->goals+1);
+    			printf(ANSI_COLOR_GREEN "t=%d: Team %c missed the chance to score their %dth goal\n" ANSI_COLOR_RESET, t->goal_time[i], t->name, t->goals+1);
     		}
     	}
     }
