@@ -83,8 +83,8 @@ void * courseRunner(void * a) {
 	        if(w!=0 && (w+t->d == t->tut_seats || t->d == 0)){
 	        	// EVENT 8
 	        	printf(ANSI_COLOR_GREY "Tutorial has started for %s with %d seats filled out of %d\n" ANSI_COLOR_RESET, t->name, t->tut_seats - t->d, t->tut_seats);
-	        	// Sleep for 2 seconds for tutorial
-		        sleep(2);
+	        	// Sleep for 5 seconds for tutorial
+		        sleep(5);
 
 		        // end tutorial
 		        t->tutorial = 0;
