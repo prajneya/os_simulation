@@ -12,6 +12,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <cstdlib>
 
 #include <bits/stdc++.h>
 #include <map>
@@ -28,6 +29,9 @@ pthread_t fetchthreads[100];
 
 //dictionary
 map<int, string> m;
+// queue
+priority_queue<int> pq;
+
 
 typedef struct Command{
     int time;
@@ -55,7 +59,6 @@ typedef struct ErrorCode{
 
 unsigned char * serialize_int(unsigned char *buffer, int value)
 {
-  /* Write big-endian int value into buffer; assumes 32-bit int and 8-bit char. */
   buffer[0] = value >> 24;
   buffer[1] = value >> 16;
   buffer[2] = value >> 8;
@@ -122,6 +125,9 @@ void* insertRunner(void* a)
  
     // Unlock the semaphore
     sem_post(&x[c->key1]);
+    // cout << "POOPING OUT " << pq.top() << endl;
+    pq.pop();
+
     pthread_exit(NULL);
 }
  
@@ -152,6 +158,9 @@ void* deleteRunner(void* a)
  
     // Unlock the semaphore
     sem_post(&x[c->key1]);
+    // cout << "POOPING OUT " << pq.top() << endl;
+    pq.pop();
+
     pthread_exit(NULL);
 }
 
@@ -183,6 +192,9 @@ void* updateRunner(void* a)
  
     // Unlock the semaphore
     sem_post(&x[c->key1]);
+    // cout << "POOPING OUT " << pq.top() << endl;
+    pq.pop();
+
     pthread_exit(NULL);
 }
 
@@ -233,6 +245,9 @@ void* concatRunner(void* a)
     // Unlock the semaphore
     sem_post(&x[c->key1]);
     sem_post(&x[c->key2]);
+    // cout << "POOPING OUT " << pq.top() << endl;
+    pq.pop();
+
     pthread_exit(NULL);
 }
 
@@ -263,12 +278,74 @@ void* fetchRunner(void* a)
  
     // Unlock the semaphore
     sem_post(&x[c->key1]);
+    // cout << "POOPING OUT " << pq.top() << endl;
+    pq.pop();
+
     pthread_exit(NULL);
+}
+
+void runCommand(Command * c, threadArg * ta, int i){
+    if (c->command_type == 0) {
+        // Create insert thread
+        if (pthread_create(&insertthreads[i], NULL,
+                           insertRunner, ta)
+            != 0)
+
+            // Error in creating thread
+            printf("Failed to create thread\n");
+    }
+    else if (c->command_type == 1) {
+        // Create delete thread
+        if (pthread_create(&deletethreads[i], NULL,
+                           deleteRunner, ta)
+            != 0)
+
+            // Error in creating thread
+            printf("Failed to create thread\n");
+    }
+    else if (c->command_type == 2) {
+        // Create update thread
+        if (pthread_create(&updatethreads[i], NULL,
+                           updateRunner, ta)
+            != 0)
+
+            // Error in creating thread
+            printf("Failed to create thread\n");
+    }
+    else if (c->command_type == 3) {
+        // Create concat thread
+        if (pthread_create(&concatthreads[i], NULL,
+                           concatRunner, ta)
+            != 0)
+
+            // Error in creating thread
+            printf("Failed to create thread\n");
+    }
+    else if (c->command_type == 4) {
+        // Create fetch thread
+        if (pthread_create(&fetchthreads[i], NULL,
+                           fetchRunner, ta)
+            != 0)
+
+            // Error in creating thread
+            printf("Failed to create thread\n");
+    }
+    else{
+        cout << "INVALID COMMAND" << endl;
+    }
 }
  
 // Driver Code
-int main()
+int main(int argc, char *argv[])
 {
+
+    if(argc!=2){
+        cout << "USAGE: ./server n" << endl;
+        return 0;
+    }
+
+    int n = atoi(argv[1]);
+
     // Initialize variables
     int serverSocket, newSocket;
     struct sockaddr_in serverAddr;
@@ -291,9 +368,9 @@ int main()
          sizeof(serverAddr));
  
     // Listen on the socket,
-    // with 40 max connection
+    // with n max connection
     // requests queued
-    if (listen(serverSocket, 50) == 0)
+    if (listen(serverSocket, n) == 0)
         printf("Listening\n");
     else
         printf("Error\n");
@@ -342,62 +419,42 @@ int main()
 
         // cout << "THREAD" << ta->command->time << " " << ta->command->command_type << " "  << ta->command->key1 << " "  << ta->command->key2 << " "  << ta->command->val << endl;
 
-        if (c->command_type == 0) {
-            // Creater insert thread
-            if (pthread_create(&insertthreads[i++], NULL,
-                               insertRunner, ta)
-                != 0)
- 
-                // Error in creating thread
-                printf("Failed to create thread\n");
-        }
-        else if (c->command_type == 1) {
-            // Create delete thread
-            if (pthread_create(&deletethreads[i++], NULL,
-                               deleteRunner, ta)
-                != 0)
- 
-                // Error in creating thread
-                printf("Failed to create thread\n");
-        }
-         else if (c->command_type == 2) {
-            // Create update thread
-            if (pthread_create(&updatethreads[i++], NULL,
-                               updateRunner, ta)
-                != 0)
- 
-                // Error in creating thread
-                printf("Failed to create thread\n");
-        }
-         else if (c->command_type == 3) {
-            // Create concat thread
-            if (pthread_create(&concatthreads[i++], NULL,
-                               concatRunner, ta)
-                != 0)
- 
-                // Error in creating thread
-                printf("Failed to create thread\n");
-        }
-         else if (c->command_type == 4) {
-            // Create fetch thread
-            if (pthread_create(&fetchthreads[i++], NULL,
-                               fetchRunner, ta)
-                != 0)
- 
-                // Error in creating thread
-                printf("Failed to create thread\n");
+        if(pq.empty() || pq.top()>=c->time){
+            // cout << "PUSHING " << c->time << endl;
+            pq.push(c->time);
+            runCommand(c, ta, i);
         }
         else{
-        	cout << "INVALID COMMAND" << endl;
-        }
+            int thread_count = i;
+            int z = 0;
 
-        sleep(1);
+            while (z<thread_count){
+                // Suspend execution of
+                // the calling thread
+                // until the target
+                // thread terminates
+                pthread_join(insertthreads[z++],
+                             NULL);
+                pthread_join(deletethreads[z++],
+                             NULL);
+                pthread_join(updatethreads[z++],
+                             NULL);
+                pthread_join(concatthreads[z++],
+                             NULL);
+                pthread_join(fetchthreads[z++],
+                             NULL);
+            }
+            // cout << "WAITING FOR REST THREADS TO FINISH " << c->time << endl;
+            pq.push(c->time);
+            runCommand(c, ta, i);
+        }
+        i++;
  
-        if (i >= 50) {
+        if (i >= n) {
             // Update i
             i = 0;
  
-            while (i < 50) {
+            while (i < n) {
                 // Suspend execution of
                 // the calling thread
                 // until the target
@@ -414,8 +471,8 @@ int main()
                              NULL);
             }
  
-            // Update i
-            i = 0;
+            cout << "MAX WORKER THREAD LIMIT REACHED" << endl;
+            return 0;
         }
     }
  
