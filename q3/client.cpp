@@ -130,7 +130,7 @@ void* commandRunner(void* a)
     	cout << "Insertion Successful" << endl;
     }
     else if(errcode==1){
-    	cout << "Key alredy exists" << endl;
+    	cout << "Key already exists" << endl;
     }
     else if(errcode==2){
     	cout << "No such key exists" << endl;
@@ -142,14 +142,12 @@ void* commandRunner(void* a)
     	cout << "Key does not exist" << endl;
     }
     else if(errcode==5){
-    	cout << errcode << " " << len_val;
     	printf("%s\n", ret_value);
     }
     else if(errcode==6){
     	cout << "Concat failed as at least one of the keys does not exist" << endl;
     }
     else if(errcode==7){
-    	cout << errcode << " " << len_val;
     	printf("%s\n", ret_value);
     }
     else if(errcode==8){
@@ -186,33 +184,33 @@ int main()
     		c->command_type = 0;
     		scanf("%s %s", c->key1, c->val);
 
-    		strcpy(c->key2, "");
+    		strcpy(c->key2, "NULL");
     	}
     	else if(!strcmp(command, "delete")){
     		c->command_type = 1;
     		scanf("%s", c->key1);
 
-    		strcpy(c->key2, "");
-    		strcpy(c->val, "");
+    		strcpy(c->key2, "NULL");
+    		strcpy(c->val, "NULL");
     	}
     	else if(!strcmp(command, "update")){
     		c->command_type = 2;
     		scanf("%s %s", c->key1, c->val);
 
-    		strcpy(c->key2, "");
+    		strcpy(c->key2, "NULL");
     	}
     	else if(!strcmp(command, "concat")){
     		c->command_type = 3;
     		scanf("%s %s", c->key1, c->key2);
 
-    		strcpy(c->val, "");
+    		strcpy(c->val, "NULL");
     	}
     	else if(!strcmp(command, "fetch")){
     		c->command_type = 4;
     		scanf("%s", c->key1);
 
-    		strcpy(c->key2, "");
-    		strcpy(c->val, "");
+    		strcpy(c->key2, "NULL");
+    		strcpy(c->val, "NULL");
     	}
     	commands[i] = c;
     }

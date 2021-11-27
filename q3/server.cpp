@@ -102,17 +102,11 @@ void* insertRunner(void* a)
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
 
+    // cout << "ATTEMPT " << c->command_type << " " << c->key1 << " " << c->val << endl;
+
     if (m.find(c->key1) == m.end()){
     	e->error = 0;
-
-    	string insertion_string = "";
-
-    	for(int i = 0; i < strlen(c->val); i++){
-    		insertion_string += c->val[i];
-    	}
-
-    	m[c->key1] = insertion_string;
-    	cout << "INSERTED" << insertion_string << endl;
+    	m[c->key1] = c->val;
     	sendErrorCommand(network_socket, e);
     }
     else{
@@ -215,8 +209,6 @@ void* concatRunner(void* a)
 
     	m[c->key1] = fstring+lstring;
     	m[c->key2] = lstring+fstring;
-
-    	cout << m[c->key2] << "  " << lstring+fstring << endl;
 
     	strcpy(e->value, m[c->key2].c_str());
 
@@ -331,14 +323,16 @@ int main()
 
         track=z+3;
         for(z=track+1; z<track+len_val+1; z++){
-        	c->val[z-track+1] = buffer[z];
+        	c->val[z-track-1] = buffer[z];
         }
 
-        cout << c->time << " " << c->command_type << " "  << c->key1 << " "  << c->key2 << " "  << c->val << endl;
+        // cout << c->time << " - " << c->command_type << " - "  << c->key1 << " - "  << c->key2 << " - "  << c->val << endl;
 
         threadArg * ta = (threadArg *) malloc(sizeof(threadArg));
         ta->command = c;
         ta->socket = newSocket;
+
+        // cout << "THREAD" << ta->command->time << " " << ta->command->command_type << " "  << ta->command->key1 << " "  << ta->command->key2 << " "  << ta->command->val << endl;
 
         if (c->command_type == 0) {
             // Creater insert thread
