@@ -11,13 +11,14 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include <bits/stdc++.h>
 #include <map>
 using namespace std;
  
 // Semaphore variables
-sem_t x;
+sem_t x[128];
 pthread_t tid;
 pthread_t insertthreads[100];
 pthread_t deletethreads[100];
@@ -26,7 +27,7 @@ pthread_t concatthreads[100];
 pthread_t fetchthreads[100];
 
 //dictionary
-map<string, string> m;
+map<int, string> m;
 
 typedef struct Command{
     int time;
@@ -36,8 +37,8 @@ typedef struct Command{
     // 2 update
     // 3 contact
     // 4 fetch
-    char key1[100];
-    char key2[100];
+    int key1;
+    int key2;
     char val[100];
 } Command;
 
@@ -49,6 +50,7 @@ typedef struct threadArg{
 typedef struct ErrorCode{
 	int error;
 	char value[200];
+	pid_t thread_id;
 } ErrorCode;
 
 unsigned char * serialize_int(unsigned char *buffer, int value)
@@ -73,6 +75,7 @@ unsigned char * serialize_string(unsigned char *buffer, int size, char * value)
 unsigned char * serialize_command(unsigned char *buffer, struct ErrorCode *value)
 {
   buffer = serialize_int(buffer, value->error);
+  buffer = serialize_int(buffer, value->thread_id);
   buffer = serialize_int(buffer, strlen(value->value));
   buffer = serialize_string(buffer, strlen(value->value), value->value);
   return buffer;
@@ -97,27 +100,28 @@ void* insertRunner(void* a)
 	int network_socket = allargs->socket;
 
     // Lock the semaphore
-    sem_wait(&x);
+    sem_wait(&x[c->key1]);
 
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
+    e->thread_id = gettid();
 
     // cout << "ATTEMPT " << c->command_type << " " << c->key1 << " " << c->val << endl;
 
     if (m.find(c->key1) == m.end()){
     	e->error = 0;
     	m[c->key1] = c->val;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
     else{
     	e->error = 1;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
-
-    cout << m[c->key1] << endl;
  
     // Unlock the semaphore
-    sem_post(&x);
+    sem_post(&x[c->key1]);
     pthread_exit(NULL);
 }
  
@@ -128,23 +132,26 @@ void* deleteRunner(void* a)
 	Command * c = (Command *) allargs->command;
 	int network_socket = allargs->socket;
     // Lock the semaphore
-    sem_wait(&x);
+    sem_wait(&x[c->key1]);
 
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
+    e->thread_id = gettid();
 
     if (m.find(c->key1) == m.end()){
     	e->error = 2;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
     else{
     	e->error = 3;
     	m.erase(c->key1);
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
  
     // Unlock the semaphore
-    sem_post(&x);
+    sem_post(&x[c->key1]);
     pthread_exit(NULL);
 }
 
@@ -155,24 +162,27 @@ void* updateRunner(void* a)
 	Command * c = (Command *) allargs->command;
 	int network_socket = allargs->socket;
     // Lock the semaphore
-    sem_wait(&x);
+    sem_wait(&x[c->key1]);
 
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
+    e->thread_id = gettid();
 
     if (m.find(c->key1) == m.end()){
     	e->error = 4;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
     else{
     	e->error = 5;
     	m[c->key1] = c->val;
     	strcpy(e->value, c->val);
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
  
     // Unlock the semaphore
-    sem_post(&x);
+    sem_post(&x[c->key1]);
     pthread_exit(NULL);
 }
 
@@ -182,14 +192,18 @@ void* concatRunner(void* a)
 	threadArg * allargs = (threadArg *) a;
 	Command * c = (Command *) allargs->command;
 	int network_socket = allargs->socket;
+
     // Lock the semaphore
-    sem_wait(&x);
+    sem_wait(&x[c->key1]);
+    sem_wait(&x[c->key2]);
 
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
+    e->thread_id = gettid();
 
     if (m.find(c->key1) == m.end() || m.find(c->key2) == m.end()){
     	e->error = 6;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
     else{
@@ -211,12 +225,14 @@ void* concatRunner(void* a)
     	m[c->key2] = lstring+fstring;
 
     	strcpy(e->value, m[c->key2].c_str());
+    	sleep(2);
 
     	sendErrorCommand(network_socket, e);
     }
  
     // Unlock the semaphore
-    sem_post(&x);
+    sem_post(&x[c->key1]);
+    sem_post(&x[c->key2]);
     pthread_exit(NULL);
 }
 
@@ -227,23 +243,26 @@ void* fetchRunner(void* a)
 	Command * c = (Command *) allargs->command;
 	int network_socket = allargs->socket;
     // Lock the semaphore
-    sem_wait(&x);
+    sem_wait(&x[c->key1]);
 
     ErrorCode * e = (ErrorCode *) malloc(sizeof(ErrorCode));
     strcpy(e->value, "");
+    e->thread_id = gettid();
 
     if (m.find(c->key1) == m.end()){
     	e->error = 8;
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
     else{
     	e->error = 9;
     	strcpy(e->value, m[c->key1].c_str());
+    	sleep(2);
     	sendErrorCommand(network_socket, e);
     }
  
     // Unlock the semaphore
-    sem_post(&x);
+    sem_post(&x[c->key1]);
     pthread_exit(NULL);
 }
  
@@ -256,7 +275,9 @@ int main()
     struct sockaddr_storage serverStorage;
  
     socklen_t addr_size;
-    sem_init(&x, 0, 1);
+
+    for(int z = 0; z<128; z++)
+    	sem_init(&x[z], 0, 1);
  
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     serverAddr.sin_addr.s_addr = INADDR_ANY;
@@ -303,27 +324,14 @@ int main()
         c->command_type = (buffer[7]<<0) | (buffer[6]<<8) | (buffer[5]<<16) | (buffer[4]<<24);
 
         int len_key1, len_key2, len_val;
-
-        int z = 0, track = 0;
         
-        len_key1 = (buffer[11]<<0) | (buffer[10]<<8) | (buffer[9]<<16) | (buffer[8]<<24);
+        c->key1 = (buffer[11]<<0) | (buffer[10]<<8) | (buffer[9]<<16) | (buffer[8]<<24);
+        c->key2 = (buffer[15]<<0) | (buffer[14]<<8) | (buffer[13]<<16) | (buffer[12]<<24);
 
-        for(z = 12; z<12+len_key1; z++){
-        	c->key1[z-12] = buffer[z];
-        }
+        len_val = (buffer[19]<<0) | (buffer[18]<<8) | (buffer[17]<<16) | (buffer[16]<<24);
 
-        len_key2 = (buffer[z+3]<<0) | (buffer[z+2]<<8) | (buffer[z+1]<<16) | (buffer[z]<<24);
-
-        track = z+3;
-        for(z=track+1; z<track+len_key2+1; z++){
-        	c->key2[z-track-1] = buffer[z];
-        }
-
-        len_val = (buffer[z+3]<<0) | (buffer[z+2]<<8) | (buffer[z+1]<<16) | (buffer[z]<<24);
-
-        track=z+3;
-        for(z=track+1; z<track+len_val+1; z++){
-        	c->val[z-track-1] = buffer[z];
+        for(int z=20; z<20+len_val; z++){
+        	c->val[z-20] = buffer[z];
         }
 
         // cout << c->time << " - " << c->command_type << " - "  << c->key1 << " - "  << c->key2 << " - "  << c->val << endl;
@@ -382,6 +390,8 @@ int main()
         else{
         	cout << "INVALID COMMAND" << endl;
         }
+
+        sleep(1);
  
         if (i >= 50) {
             // Update i

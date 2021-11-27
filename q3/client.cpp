@@ -15,7 +15,7 @@
 using namespace std;
 
 typedef struct Command{
-
+	int uid;
     int time;
     int command_type;
     // 0 insert
@@ -23,8 +23,8 @@ typedef struct Command{
     // 2 update
     // 3 contact
     // 4 fetch
-    char key1[100];
-    char key2[100];
+    int key1;
+    int key2;
     char val[100];
 } Command;
 
@@ -55,10 +55,8 @@ unsigned char * serialize_command(unsigned char *buffer, struct Command *value)
 {
   buffer = serialize_int(buffer, value->time);
   buffer = serialize_int(buffer, value->command_type);
-  buffer = serialize_int(buffer, strlen(value->key1));
-  buffer = serialize_string(buffer, strlen(value->key1), value->key1);
-  buffer = serialize_int(buffer, strlen(value->key2));
-  buffer = serialize_string(buffer, strlen(value->key2), value->key2);
+  buffer = serialize_int(buffer, value->key1);
+  buffer = serialize_int(buffer, value->key2);
   buffer = serialize_int(buffer, strlen(value->val));
   buffer = serialize_string(buffer, strlen(value->val), value->val);
   return buffer;
@@ -92,7 +90,9 @@ void* commandRunner(void* a)
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = INADDR_ANY;
     server_address.sin_port = htons(8989);
- 
+ 	
+ 	// sleep for time allocated
+ 	sleep(c->time);
     // Initiate a socket connection
     int connection_status = connect(network_socket,
                                     (struct sockaddr*)&server_address,
@@ -104,8 +104,7 @@ void* commandRunner(void* a)
         return 0;
     }
  
-    // printf("Connection established\n");
- 
+    // printf("%d Connection established\n", c->uid);
     // Send data to the socket
     int sendVal = send_Command(network_socket, c);
 
@@ -115,50 +114,52 @@ void* commandRunner(void* a)
     int recVal = recv(network_socket, buffer, sizeof(buffer), 0);
 
     int errcode = (buffer[3]<<0) | (buffer[2]<<8) | (buffer[1]<<16) | (buffer[0]<<24);
-    int len_val = (buffer[7]<<0) | (buffer[6]<<8) | (buffer[5]<<16) | (buffer[4]<<24);
+    int thread_id = (buffer[7]<<0) | (buffer[6]<<8) | (buffer[5]<<16) | (buffer[4]<<24);
+    int len_val = (buffer[11]<<0) | (buffer[10]<<8) | (buffer[9]<<16) | (buffer[8]<<24);
 
     int z = 0;
     char ret_value[200];
 
-    for(z = 8; z<8+len_val; z++){
-    	ret_value[z-8] = buffer[z];
+    for(z = 12; z<12+len_val; z++){
+    	ret_value[z-12] = buffer[z];
     }
 
     // cout << "RECEIVED " << recVal << " BYTES" << endl;
 
     if(errcode==0){
-    	cout << "Insertion Successful" << endl;
+    	cout << c->uid << ":" << thread_id << ":Insertion Successful" << endl;
     }
     else if(errcode==1){
-    	cout << "Key already exists" << endl;
+    	cout << c->uid << ":" << thread_id << ":Key already exists" << endl;
     }
     else if(errcode==2){
-    	cout << "No such key exists" << endl;
+    	cout << c->uid << ":" << thread_id << ":No such key exists" << endl;
     }
     else if(errcode==3){
-    	cout << "Deletion Successful" << endl;
+    	cout << c->uid << ":" << thread_id << ":Deletion Successful" << endl;
     }
     else if(errcode==4){
-    	cout << "Key does not exist" << endl;
+    	cout << c->uid << ":" << thread_id << ":Key does not exist" << endl;
     }
     else if(errcode==5){
-    	printf("%s\n", ret_value);
+    	printf("%d:%d:%s\n", c->uid, thread_id, ret_value);
     }
     else if(errcode==6){
-    	cout << "Concat failed as at least one of the keys does not exist" << endl;
+    	cout << c->uid << ":" << thread_id << ":Concat failed as at least one of the keys does not exist" << endl;
     }
     else if(errcode==7){
-    	printf("%s\n", ret_value);
+    	printf("%d:%d:%s\n", c->uid, thread_id, ret_value);
     }
     else if(errcode==8){
-    	cout << "Key does not exist" << endl;
+    	cout << c->uid << ":" << thread_id << ":Key does not exist" << endl;
     }
     else if(errcode==9){
-    	printf("%s\n", ret_value);
+    	printf("%d:%d:%s\n", c->uid, thread_id, ret_value);
     }
  
     // Close the connection
     close(network_socket);
+
     pthread_exit(NULL);
  
     return 0;
@@ -177,39 +178,41 @@ int main()
     	Command * c = (Command *) malloc(sizeof(Command));
     	scanf(" %d", &c->time);
 
+    	c->uid = i;
+
     	char command[50];
     	scanf("%s", command);
 
     	if(!strcmp(command, "insert")){
     		c->command_type = 0;
-    		scanf("%s %s", c->key1, c->val);
+    		scanf("%d %s", &c->key1, c->val);
 
-    		strcpy(c->key2, "NULL");
+    		c->key2 = 0;
     	}
     	else if(!strcmp(command, "delete")){
     		c->command_type = 1;
-    		scanf("%s", c->key1);
+    		scanf("%d", &c->key1);
 
-    		strcpy(c->key2, "NULL");
+    		c->key2 = 0;
     		strcpy(c->val, "NULL");
     	}
     	else if(!strcmp(command, "update")){
     		c->command_type = 2;
-    		scanf("%s %s", c->key1, c->val);
+    		scanf("%d %s", &c->key1, c->val);
 
-    		strcpy(c->key2, "NULL");
+    		c->key2 = 0;
     	}
     	else if(!strcmp(command, "concat")){
     		c->command_type = 3;
-    		scanf("%s %s", c->key1, c->key2);
+    		scanf("%d %d", &c->key1, &c->key2);
 
     		strcpy(c->val, "NULL");
     	}
     	else if(!strcmp(command, "fetch")){
     		c->command_type = 4;
-    		scanf("%s", c->key1);
+    		scanf("%d", &c->key1);
 
-    		strcpy(c->key2, "NULL");
+    		c->key2 = 0;
     		strcpy(c->val, "NULL");
     	}
     	commands[i] = c;
