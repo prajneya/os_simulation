@@ -8,6 +8,7 @@
 
 void * personRunner(void * a) {
     Person * p = (Person *)a;
+
     sleep(p->arr_time);
     // SPEC EVENT 1
     printf(ANSI_COLOR_RED "t=%d: %s has reached the stadium\n" ANSI_COLOR_RESET, p->arr_time, p->name);

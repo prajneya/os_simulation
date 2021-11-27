@@ -9,8 +9,12 @@
 void * teamRunner(void * a) {
     Team * t = (Team *)a;
 
+    int wait_time = 0;
+
     for(int i = 0; i < t->iter; i++){
-    	sleep(t->goal_time[i]);
+    	sleep(t->goal_time[i] - wait_time);
+
+        wait_time += t->goal_time[i];
 
     	bool scores = (rand() % 100) < (t->chance[i] * 100);
 

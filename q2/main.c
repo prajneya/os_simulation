@@ -66,16 +66,16 @@ void init(){
 		initTeam();
 	}
 
-	person_t = (pthread_t *) malloc(sizeof(pthread_t) * tot_persons);
-
-	for(int i = 0; i < G; i++){
-		createPersonThreads(i);
-	}
-
 	team_t = (pthread_t *) malloc(sizeof(pthread_t) * 2);
 
 	for(int i = 0; i < 2; i++){
 		createTeamThreads(i);
+	}
+
+	person_t = (pthread_t *) malloc(sizeof(pthread_t) * tot_persons);
+
+	for(int i = 0; i < G; i++){
+		createPersonThreads(i);
 	}
 }
 
