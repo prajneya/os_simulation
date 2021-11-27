@@ -2,7 +2,7 @@
 
 Implementation of an alternate course allocation portal for students based on multithreading, concurrency and parallelism concepts coded in C.
 
-## Implmentation
+## Implementation
 
 For tackling this question, I maintain arrays of students, courses and labs. The program behaves exactly as described in the problem pipeline. Each student, course and lab is a thread.
 

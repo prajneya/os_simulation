@@ -49,8 +49,8 @@ typedef struct Team {
     int goals;
 
     char name;
-    int goal_time[50];
-    double chance[50];
+    int goal_time[100];
+    double chance[100];
 } Team;
 
 Group ** groups;
